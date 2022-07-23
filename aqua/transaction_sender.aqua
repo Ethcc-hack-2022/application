@@ -22,8 +22,8 @@ service MyOp("op"):
 service MyOp2("op"):
   array_length(providers: []FunctionAddress) -> i64
 
-service MultiProviderQuery("service-id"):
-  get_block_number(provider: ProviderInfo) -> EVMResult
+service SendTx("service-id"):
+  send_raw_tx(provider: ProviderInfo, params: []string) -> EVMResult
 
 service Utilities("service_id"):
   kv_to_u64(kv: string, k: string) -> u64
@@ -31,21 +31,14 @@ service Utilities("service_id"):
 service Console("run-console"):
     print(msg: string)
 
-func get_block_heights(providers: []ProviderInfo, addrs: []FunctionAddress) -> []EVMResult:
+func get_tx_hash(provider: ProviderInfo, addr: FunctionAddress, rawTx: []string ) -> []EVMResult:
   result: *EVMResult
   result2: *string
-  n <- MyOp.array_length(providers)
-  n2 <- MyOp2.array_length(addrs)
 
-  if n > 0:
-    for addr <- addrs par:
-      on addr.peer_id:
-        MultiProviderQuery addr.service_id
-        for provider <- providers:
-          result <- MultiProviderQuery.get_block_number(provider)
-          result2 <<- provider.name
-        -- join result[n2-1]
-    join result[n*n2-1]
+  on addr.peer_id:
+      SendTx addr.service_id
+      result <- SendTx.send_raw_tx(provider, rawTx)
+      result2 <<- provider.name
   <- result
 
 service ConsoleEVMResults("run-console"):

@@ -27,7 +27,7 @@
         "prestart": "npm run compile-aqua",
         "prebuild": "npm run compile-aqua",
         "build:app": "react-app-rewired build",
-        "start":"react-app-rewired start",
+        "start": "concurrently \"react-app-rewired start\" \"mm-snap serve\"",
         "test": "jest --config=jest.config.js",
         "_test": "react-scripts test",
         "eject": "react-scripts eject",

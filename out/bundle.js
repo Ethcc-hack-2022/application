@@ -6,7 +6,7 @@ module.exports.onRpcRequest = async ({
   request
 }) => {
   switch (request.method) {
-    case 'hello':
+    case 'emit_confirmation':
       var result = await wallet.request({
         method: 'snap_confirm',
         params: [{
