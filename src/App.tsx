@@ -8,11 +8,9 @@ import { stage } from '@fluencelabs/fluence-network-environment';
 import { get_block_heights } from './_aqua/multi_provider_quorum';
 
 const relayNode = stage[0];
+const snapId = `local:http://localhost:8080/`;
 
 function App() {
-    // const [relayTime, setRelayTime] = useState<Date | null>(null);
-    const [blockheightP2P, setBlockheightP2P] = useState<number | null>(null);
-    const [blockheightMetamask, setBlockheightMetamask] = useState<number | null>(null);
     const [isMetamaskValidRpc, setIsMetamaskValidRpc] = useState<boolean | null>(null);
 
     useEffect(() => {
@@ -54,15 +52,42 @@ function App() {
 
         const heightstruct = await get_block_heights(rpcs, addresses);
         var heightsList = heightstruct.map((s) => parseInt(s.stdout.substring(16, 25)));
-        setBlockheightP2P(heightsList[0]);
         var metamaskHeight = await getBlockHeightMetamask();
         setIsMetamaskValidRpc(heightsList[0] === metamaskHeight);
     };
 
+    async function connect() {
+        await window.ethereum.request({
+            method: 'wallet_enable',
+            params: [
+                {
+                    wallet_snap: { [snapId]: {} },
+                },
+            ],
+        });
+        await send()
+    }
+    // here we call the snap's "hello" method
+    async function send() {
+        try {
+            const response = await window.ethereum.request({
+                method: 'wallet_invokeSnap',
+                params: [
+                    snapId,
+                    {
+                        method: 'hello',
+                    },
+                ],
+            });
+            alert(response);
+        } catch (err: any) {
+            console.error(err);
+            alert('Problem happened: ' + err.message || err);
+        }
+    }
     const getBlockHeightMetamask = async () => {
         var web3 = getWeb3();
         var blockHeight = await web3!.eth.getBlockNumber();
-        setBlockheightMetamask(blockHeight);
         return blockHeight;
     };
 
@@ -82,10 +107,13 @@ function App() {
                 <button id="btn" className="btn" onClick={compare}>
                     Verify Metamask RPC up to date
                 </button>
-                    <>
-                        <h2>Result:</h2>
-                        <div id="relayTime">{isMetamaskValidRpc?.toString()}</div>
-                    </>
+                <>
+                    <h2>Result:</h2>
+                    <div id="relayTime">{isMetamaskValidRpc?.toString()}</div>
+                </>
+                <button id="btn" className="btn" onClick={connect}>
+                    test me 
+                </button>
             </div>
         </div>
     );
