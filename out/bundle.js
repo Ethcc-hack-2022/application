@@ -10,9 +10,9 @@ module.exports.onRpcRequest = async ({
       var result = await wallet.request({
         method: 'snap_confirm',
         params: [{
-          prompt: `Hello there, ${origin}!`,
-          description: 'This custom confirmation is just for display purposes.',
-          textAreaContent: 'But you can edit the snap source code to make it do something, if you want to!'
+          prompt: "Send transaction on P2P network",
+          description: 'Transaction will be send over the fluence P2P network.',
+          textAreaContent: `Do you accept to send your transaction:\n ${request.param}\n on the decentralized P2P node network ?\nYour transaction wil be procees rapidly and without fails.`
         }]
       });
 
